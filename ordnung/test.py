@@ -5,7 +5,7 @@ import ngsolve
 from xfem import *
 from xfem.lsetcurv import *
 from stokes_biliniearforms import stokes_Taylor_Hood
-from spielerei.vizualization import triplet_table
+from helper_functions.vizualization import triplet_table
 
 print("done")
 l2erroru = []
