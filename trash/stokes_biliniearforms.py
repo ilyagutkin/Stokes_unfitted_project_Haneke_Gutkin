@@ -24,8 +24,8 @@ def stokes_Taylor_Hood(fes, h , n, dw_interface, dx , ds, f=CF((0,0)), ud=CF((0,
     (u,p,z),(v,q,z1) = fes.TnT()
 
     stokes = BilinearForm(fes)
-    stokes += InnerProduct(Grad(u), Grad(v))*dx + div(u)*q*dx -q*n * u *ds \
-        + div(v)*p*dx -p*n * v * ds
+    stokes += InnerProduct(Grad(u), Grad(v))*dx - div(u)*q*dx +q*n * u *ds \
+        - div(v)*p*dx +p*n * v * ds
     stokes += -(Grad(u)*n * v + Grad(v)*n * u) * ds + gamma_stab/ h * u * v * ds
     stokes += beta2* InnerProduct(jumpn(u,n), jumpn(v,n)) * dw_interface #velocity ghost penalty
     stokes += -beta0 * InnerProduct(jump(p), jump(q)) * dw_interface #velocity ghost penalty
