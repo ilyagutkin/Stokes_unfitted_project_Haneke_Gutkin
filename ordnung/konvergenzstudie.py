@@ -42,10 +42,7 @@ import ngsolve
 from xfem import *
 from xfem.lsetcurv import *
 from stokes_solver import *
-import sys
-import os
-sys.path.append(os.path.abspath("/home/matilda/numerik/Stokes_projekt_Haneke_Gutkin/spielerei"))
-from vizualization import *
+from helper_functions.vizualization import *
 
 def convergence_study(solver, levelset, f, ud, uexact, pexact,maxh= [0.5, 0.25, 0.125, 0.0625],order = None):
     l2erroru = []
