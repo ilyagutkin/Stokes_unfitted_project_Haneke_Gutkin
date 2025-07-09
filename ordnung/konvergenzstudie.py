@@ -90,7 +90,7 @@ l2errorp_p1_p0 = []
 # This example shows how to use the stokes_Taylor_Hood function to solve the Stokes problem
 # with Taylor-Hood elements of different orders and evaluate the convergence rates.
 print("Convergence study is working ...")
-for maxh in [ 0.03125, 0.015625]:
+for maxh in [ 0.5, 0.25, 0.125, 0.0625]:
     square = SplineGeometry()
     square.AddRectangle((-1.25, -1.25), (1.25, 1.25), bc=1)
     ngmesh = square.GenerateMesh(maxh=maxh)

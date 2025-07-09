@@ -122,6 +122,7 @@ def P1_P1(mesh, levelset, order=None, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=No
         return f - f.Other()
     def jumpn(f):
         n = Normalize(grad(lsetp1))
+        nf = specialcf.normal(mesh.dim)
         return Grad(f)*n - Grad(f).Other()*n
 
     a = BilinearForm(X)
