@@ -47,6 +47,22 @@ import os
 sys.path.append(os.path.abspath("/home/matilda/numerik/Stokes_projekt_Haneke_Gutkin/spielerei"))
 from vizualization import *
 
+def convergence_study(solver, levelset, f, ud, uexact, pexact,maxh= [0.5, 0.25, 0.125, 0.0625],order = None):
+    l2erroru = []
+    l2errorp = []
+    for maxh in maxh:
+        print("Convergence study is working ...")
+        square = SplineGeometry()
+        square.AddRectangle((-1.25, -1.25), (1.25, 1.25), bc=1)
+        ngmesh = square.GenerateMesh(maxh=maxh)
+        mesh = Mesh(ngmesh)
+
+        gfu1, l2erroru_1 , l2errorp_1= solver(mesh, levelset=levelset, f=f, ud=uexact, uexact=uexact , pexact=pexact)
+        l2erroru.append((maxh, 1, l2erroru_1))
+        l2errorp.append((maxh, 1, l2errorp_1))
+        return l2erroru, l2errorp
+        
+
 
 u1 = -4*y * (1 - x**2 - y**2)
 u2 = 4*x*(1 - x**2 - y**2)
@@ -66,21 +82,35 @@ f = CoefficientFunction((
 #levelsetfunction 
 levelset = x**2 + y**2 - 1
 
-l2erroru = []
-l2errorp = []
+l2erroru_taylor_hood = []
+l2errorp_taylor_hood = []
+l2erroru_p1_p1 = []
+l2errorp_p1_p1 = []
+l2erroru_p1_p0 = []
+l2errorp_p1_p0 = []
 
 ### EXAMPLE USAGE ###
 # This example shows how to use the stokes_Taylor_Hood function to solve the Stokes problem
 # with Taylor-Hood elements of different orders and evaluate the convergence rates.
 print("Convergence study is working ...")
-for maxh in [0.5, 0.25, 0.125, 0.0625]:
+for maxh in [ 0.03125, 0.015625]:
     square = SplineGeometry()
     square.AddRectangle((-1.25, -1.25), (1.25, 1.25), bc=1)
     ngmesh = square.GenerateMesh(maxh=maxh)
     mesh = Mesh(ngmesh)
 
-    for order in [2, 3, 4]:
-        gfu , error_u = stokes_Taylor_Hood(mesh, levelset=levelset, order=order, f=f, ud=uexact, uexact=uexact)
-        l2erroru.append((maxh, order, error_u))
+    gfu1, l2erroru_1 , l2errorp_1= P1_P1(mesh, levelset=levelset, f=f, ud=uexact, uexact=uexact , pexact=pexact)
+    l2erroru_p1_p1.append((maxh, 1, l2erroru_1))
+    l2errorp_p1_p1.append((maxh, 1, l2errorp_1))
 
-print("L2 errors velocity:", triplet_table(l2erroru, 0,1))
+
+    for order in [2]:
+        gfu , error_u , error_p= stokes_Taylor_Hood(mesh, levelset=levelset, order=order, f=f, ud=uexact, uexact=uexact , pexact=pexact)
+        l2erroru_taylor_hood.append((maxh, order, error_u))
+        l2errorp_taylor_hood.append((maxh, order, error_p))
+
+#Visualization of the errors in a table format
+print("L2 errors velocity:", triplet_table(l2erroru_taylor_hood, 0,1))
+print("L2 errors pressure:", triplet_table(l2errorp_taylor_hood, 0,1))
+print("L2 errors velocity P1-P1:", l2erroru_p1_p1)
+print("L2 errors pressure P1-P1:", l2errorp_p1_p1)
