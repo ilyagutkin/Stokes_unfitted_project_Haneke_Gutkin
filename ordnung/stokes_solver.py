@@ -8,7 +8,7 @@ import numpy as np
 from ngsolve import *
 
 
-def stokes_Taylor_Hood(mesh,levelset , order, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact =None, pexact=None):
+def stokes_Taylor_Hood(mesh,levelset , f=CF((0,0)), ud=CF((0,0)), nu=1, uexact =None, pexact=None,order=2):
     if order == 1:
         raise ValueError("Order 1 Taylor-Hood elements are not stable. Use order 2 or higher.")
     gamma_stab = 100
@@ -79,7 +79,7 @@ def stokes_Taylor_Hood(mesh,levelset , order, f=CF((0,0)), ud=CF((0,0)), nu=1, u
         error_p = sqrt(Integrate( (gfu.components[1] - pexact) ** 2*dx, mesh ))
     return gfu , error_u ,error_p
 
-def P1_P1(mesh, levelset, order=None, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=None, pexact=None):
+def P1_P1(mesh, levelset, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=None, pexact=None, order=None):
     gamma_stab = 100
     beta0 =1
     beta1 = 1
