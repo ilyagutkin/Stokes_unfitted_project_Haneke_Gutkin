@@ -98,6 +98,7 @@ if __name__ == "__main__":
     
     for order in [2,3,4]:
         l2erroru ,l2errorp = convergence_study(stokes_Taylor_Hood,levelset,f,ud=uexact,uexact=uexact,pexact=pexact,order=order)
+        plot_convergence(l2erroru,error_index=2, h_index=0, label="L2 error of velocity")
         l2erroru_taylor_hood = l2erroru_taylor_hood + l2erroru
         l2errorp_taylor_hood = l2errorp_taylor_hood + l2errorp
 
