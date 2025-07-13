@@ -64,7 +64,6 @@ def convergence_study(solver, levelset,f, ud, uexact, pexact,geo = None,maxh= [0
     return l2erroru, l2errorp
         
 
-
 if __name__ == "__main__":
     u1 = -4*y * (1 - x**2 - y**2)
     u2 = 4*x*(1 - x**2 - y**2)
