@@ -41,14 +41,15 @@ from ngsolve.internal import *
 import ngsolve
 from xfem import *
 from xfem.lsetcurv import *
-from stokes_solver import *
+from ordnung.stokes_solver import *
 import sys
 sys.path.append('.')
 from helper_functions.vizualization import *
 
-def convergence_study(solver, levelset,f, ud, uexact, pexact,geo = None,maxh= [0.5, 0.25, 0.125, 0.0625], order = None):
+def convergence_study(solver, levelset,f, ud, uexact, pexact,geo = None,maxh= [0.5, 0.25, 0.125, 0.0625], order = None , condition_number= False):
     l2erroru = []
     l2errorp = []
+    condi_list = []
     print("Convergence study is working ...")
     for maxh in maxh:
         if geo== None:
@@ -60,9 +61,15 @@ def convergence_study(solver, levelset,f, ud, uexact, pexact,geo = None,maxh= [0
             ngmesh = geo.GenerateMesh(maxh=maxh)
             mesh = Mesh(ngmesh)
 
-        gfu1, l2erroru_1 , l2errorp_1= solver(mesh, levelset=levelset, f=f, ud=uexact, uexact=uexact , pexact=pexact,order=order)
-        l2erroru.append((maxh, order, l2erroru_1))
-        l2errorp.append((maxh, order, l2errorp_1))
+        if condition_number== True:
+            gfu1, l2erroru_1 , l2errorp_1, condi= solver(mesh, levelset=levelset, f=f, ud=uexact, uexact=uexact , pexact=pexact,order=order,conditionnumber=True)
+            condi_list.append((maxh, order, condi))
+        else:
+            gfu1, l2erroru_1 , l2errorp_1= solver(mesh, levelset=levelset, f=f, ud=uexact, uexact=uexact , pexact=pexact,order=order)
+            l2erroru.append((maxh, order, l2erroru_1))
+            l2errorp.append((maxh, order, l2errorp_1))
+    if condition_number == True:
+        return condi_list
     return l2erroru, l2errorp
         
 

@@ -6,9 +6,10 @@ from xfem import *
 from xfem.lsetcurv import *
 import numpy as np
 from ngsolve import *
+from helper_functions.conditionnumber import compute_condition_number
 
 
-def stokes_Taylor_Hood(mesh,levelset , f=CF((0,0)), ud=CF((0,0)), nu=1, uexact =None, pexact=None,order=2):
+def stokes_Taylor_Hood(mesh,levelset , f=CF((0,0)), ud=CF((0,0)), nu=1, uexact =None, pexact=None, order=2, conditionnumber = False):
     if order == 1:
         raise ValueError("Order 1 Taylor-Hood elements are not stable. Use order 2 or higher.")
     gamma_stab = 100
@@ -73,13 +74,21 @@ def stokes_Taylor_Hood(mesh,levelset , f=CF((0,0)), ud=CF((0,0)), nu=1, uexact =
     rhs.Assemble()
     gfu.vec.data = a.mat.Inverse(X.FreeDofs()) * rhs.vec
 
+    if conditionnumber == True:
+        condi = compute_condition_number(a)
+    else:
+        condi = None
+
     if uexact is not None:
         error_u = sqrt(Integrate( (gfu.components[0] - uexact) ** 2*dx, mesh ))
     if pexact is not None:
         error_p = sqrt(Integrate( (gfu.components[1] - pexact) ** 2*dx, mesh ))
-    return gfu , error_u ,error_p
+    if condi == None:
+        return gfu , error_u ,error_p
+    else:
+        return gfu , error_u, error_p, condi
 
-def P1_P1(mesh, levelset, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=None, pexact=None, order = None):
+def P1_P1(mesh, levelset, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=None, pexact=None, order = None, conditionnumber = False):
     gamma_stab = 100
     beta0 = 1
     beta1 = 1
@@ -137,14 +146,23 @@ def P1_P1(mesh, levelset, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=None, pexact=N
     rhs.Assemble()
     gfu.vec.data = a.mat.Inverse(X.FreeDofs()) * rhs.vec
 
+    if conditionnumber == True:
+        condi = compute_condition_number(a)
+    else:
+        condi = None
+
+
     if uexact is not None:
         error_u = sqrt(Integrate( (gfu.components[0] - uexact) ** 2*dX, mesh ))
     if pexact is not None:
         error_p = sqrt(Integrate( (gfu.components[1] - pexact) ** 2*dX, mesh ))
-    return gfu , error_u ,error_p
+    if condi == None:
+        return gfu , error_u ,error_p
+    else:
+        return gfu , error_u, error_p, condi
 
 
-def P1_P0(mesh, levelset, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=None, pexact=None, order=None):
+def P1_P0(mesh, levelset, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=None, pexact=None, order=None, conditionnumber = False):
     gamma_stab = 100
     beta0 =1
     beta1 = 1
@@ -206,14 +224,23 @@ def P1_P0(mesh, levelset, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=None, pexact=N
     rhs.Assemble()
     gfu.vec.data = a.mat.Inverse(X.FreeDofs()) * rhs.vec
 
+    if conditionnumber == True:
+        condi = compute_condition_number(a)
+    else:
+        condi = None
+
+
     if uexact is not None:
         error_u = sqrt(Integrate( (gfu.components[0] - uexact) ** 2*dX, mesh ))
     if pexact is not None:
         error_p = sqrt(Integrate( (gfu.components[1] - pexact) ** 2*dX, mesh ))
-    return gfu , error_u ,error_p
+    if condi == None:
+        return gfu , error_u ,error_p
+    else:
+        return gfu , error_u, error_p, condi
 
 
-def Divergence_free(mesh, levelset, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=None, pexact=None, order=3):
+def Divergence_free(mesh, levelset, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=None, pexact=None, order=3, conditionnumber = False):
     gamma_GP = 0.2*order**2
     gamma_Nitsche = 20
     gamma_IP = 20
@@ -299,9 +326,18 @@ def Divergence_free(mesh, levelset, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=None
     rhs.Assemble()
 
     gfu.vec.data = a.mat.Inverse(X.FreeDofs(), inverse="sparsecholesky") * rhs.vec
+
+    if conditionnumber == True:
+        condi = compute_condition_number(a)
+    else:
+        condi = None
+
     
     if uexact is not None:
         error_u = sqrt(Integrate( (gfu.components[0] - uexact) ** 2*dX, mesh ))
     if pexact is not None:
         error_p = sqrt(Integrate( (gfu.components[1] - pexact) ** 2*dxinner, mesh ))
-    return gfu , error_u ,error_p
+    if condi == None:
+        return gfu , error_u ,error_p
+    else:
+        return gfu , error_u, error_p, condi
