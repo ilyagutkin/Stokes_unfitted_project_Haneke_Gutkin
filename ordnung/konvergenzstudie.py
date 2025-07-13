@@ -42,88 +42,68 @@ import ngsolve
 from xfem import *
 from xfem.lsetcurv import *
 from stokes_solver import *
-import sys
-sys.path.append('.')
-#sys.path.append('C:\Users\Daniel\Documents\Daniel\Studium\8._Semester\Bachelorarbeit\Code\EndResultat')
-#import helper_functions
 from helper_functions.vizualization import *
 
-def convergence_study(solver, levelset, f, ud, uexact, pexact,maxh= [0.5, 0.25, 0.125, 0.0625],order = None):
+def convergence_study(solver, levelset,f, ud, uexact, pexact,geo = None,maxh= [0.5, 0.25, 0.125, 0.0625], order = None):
     l2erroru = []
     l2errorp = []
+    print("Convergence study is working ...")
     for maxh in maxh:
-        print("Convergence study is working ...")
-        square = SplineGeometry()
-        square.AddRectangle((-1.25, -1.25), (1.25, 1.25), bc=1)
-        ngmesh = square.GenerateMesh(maxh=maxh)
-        mesh = Mesh(ngmesh)
+        if geo== None:
+            square = SplineGeometry()
+            square.AddRectangle((-1.25, -1.25), (1.25, 1.25), bc=1)
+            ngmesh = square.GenerateMesh(maxh=maxh)
+            mesh = Mesh(ngmesh)
+        else:
+            ngmesh = geo.GenerateMesh(maxh=maxh)
+            mesh = Mesh(ngmesh)
 
-        gfu1, l2erroru_1 , l2errorp_1= solver(mesh, levelset=levelset, f=f, ud=uexact, uexact=uexact , pexact=pexact)
-        l2erroru.append((maxh, 1, l2erroru_1))
-        l2errorp.append((maxh, 1, l2errorp_1))
-        return l2erroru, l2errorp
+        gfu1, l2erroru_1 , l2errorp_1= solver(mesh, levelset=levelset, f=f, ud=uexact, uexact=uexact , pexact=pexact,order=order)
+        l2erroru.append((maxh, order, l2erroru_1))
+        l2errorp.append((maxh, order, l2errorp_1))
+    return l2erroru, l2errorp
         
 
 
-u1 = -4*y * (1 - x**2 - y**2)
-u2 = 4*x*(1 - x**2 - y**2)
-uexact = CoefficientFunction((u1, u2))
-pexact = sin(x)*cos(y)
-# Laplace-Anteil
-lapu1 = 32*y
-lapu2 = -32*x
-# Gradient von p
-dpdx = cos(x) * cos(y)
-dpdy = -sin(x) * sin(y)
-f = CoefficientFunction((
-    -lapu1 - dpdx,
-    -lapu2 - dpdy
-))
+if __name__ == "__main__":
+    u1 = -4*y * (1 - x**2 - y**2)
+    u2 = 4*x*(1 - x**2 - y**2)
+    uexact = CoefficientFunction((u1, u2))
+    pexact = sin(x)*cos(y)
+    # Laplace-Anteil
+    lapu1 = 32*y
+    lapu2 = -32*x
+    # Gradient von p
+    dpdx = cos(x) * cos(y)
+    dpdy = -sin(x) * sin(y)
+    f = CoefficientFunction((
+        -lapu1 - dpdx,
+        -lapu2 - dpdy
+    ))
 
-#levelsetfunction 
-levelset = x**2 + y**2 - 1
+    #levelsetfunction 
+    levelset = x**2 + y**2 - 1
 
-l2erroru_taylor_hood = []
-l2errorp_taylor_hood = []
-l2erroru_p1_p1 = []
-l2errorp_p1_p1 = []
-l2erroru_p1_p0 = []
-l2errorp_p1_p0 = []
-l2erroru_Div = []
-l2errorp_Div = []
+    l2erroru ,l2errorp = convergence_study(P1_P1,levelset,f,ud=uexact,uexact=uexact,pexact=pexact)
+    plot_convergence(l2erroru,error_index=2, h_index=0, label="L2 error of velocity")
 
-### EXAMPLE USAGE ###
-# This example shows how to use the stokes_Taylor_Hood function to solve the Stokes problem
-# with Taylor-Hood elements of different orders and evaluate the convergence rates.
-print("Convergence study is working ...")
-for maxh in [0.5, 0.25, 0.125, 0.0625 ]:
-    square = SplineGeometry()
-    square.AddRectangle((-1.25, -1.25), (1.25, 1.25), bc=1)
-    ngmesh = square.GenerateMesh(maxh=maxh)
-    mesh = Mesh(ngmesh)
-
-    gfu1, l2erroru_1 , l2errorp_1= P1_P1(mesh, levelset=levelset, f=f, ud=uexact, uexact=uexact , pexact=pexact)
-    l2erroru_p1_p1.append((maxh, 1, l2erroru_1))
-    l2errorp_p1_p1.append((maxh, 1, l2errorp_1))
-    gfu0, l2erroru_0 , l2errorp_0= P1_P0(mesh, levelset=levelset, f=f, ud=uexact, uexact=uexact , pexact=pexact)
-    l2erroru_p1_p0.append((maxh, 1, l2erroru_0))
-    l2errorp_p1_p0.append((maxh, 1, l2errorp_0))
-    gfuD, l2erroru_D , l2errorp_D= Divergence_free(mesh, levelset=levelset, f=f, ud=uexact, uexact=uexact , pexact=pexact)
-    l2erroru_Div.append((maxh, 1, l2erroru_D))
-    l2errorp_Div.append((maxh, 1, l2errorp_D))
+    l2erroru_taylor_hood = []
+    l2errorp_taylor_hood = []
 
 
-    for order in [2]:
-        gfu , error_u , error_p= stokes_Taylor_Hood(mesh, levelset=levelset, order=order, f=f, ud=uexact, uexact=uexact , pexact=pexact)
-        l2erroru_taylor_hood.append((maxh, order, error_u))
-        l2errorp_taylor_hood.append((maxh, order, error_p))
+    ### EXAMPLE USAGE ###
+    # This example shows how to use the stokes_Taylor_Hood function to solve the Stokes problem
+    # with Taylor-Hood elements of different orders and evaluate the convergence rates.
+    
+    
+    for order in [2,3,4]:
+        l2erroru ,l2errorp = convergence_study(stokes_Taylor_Hood,levelset,f,ud=uexact,uexact=uexact,pexact=pexact,order=order)
+        plot_convergence(l2erroru,error_index=2, h_index=0, label="L2 error of velocity")
+        l2erroru_taylor_hood = l2erroru_taylor_hood + l2erroru
+        l2errorp_taylor_hood = l2errorp_taylor_hood + l2errorp
 
-#Visualization of the errors in a table format
-#print("L2 errors velocity:", triplet_table(l2erroru_taylor_hood, 0,1))
-#print("L2 errors pressure:", triplet_table(l2errorp_taylor_hood, 0,1))
-print("L2 errors velocity P1-P1:", l2erroru_p1_p1)
-print("L2 errors pressure P1-P1:", l2errorp_p1_p1)
-print("L2 errors velocity P1-P0:", l2erroru_p1_p0)
-print("L2 errors pressure P1-P0:", l2errorp_p1_p0)
-print("L2 errors velocity Div:", l2erroru_Div)
-print("L2 errors pressure Div:", l2errorp_Div)
+    #Visualization of the errors in a table format
+    print("L2 errors velocity:", triplet_table(l2erroru_taylor_hood, 0,1))
+    print("L2 errors pressure:", triplet_table(l2errorp_taylor_hood, 0,1))
+    print("finish")
+
