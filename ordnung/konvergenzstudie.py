@@ -3,7 +3,7 @@ convergence_study.py
 
 This script performs a convergence study for the analytical Stokes problem:
 
-    -Δu + ∇p = f   in Ω
+    -Δu - ∇p = f   in Ω
      div(u) = 0   in Ω
 
 with the known exact solution:
@@ -42,6 +42,8 @@ import ngsolve
 from xfem import *
 from xfem.lsetcurv import *
 from stokes_solver import *
+import sys
+sys.path.append('.')
 from helper_functions.vizualization import *
 
 def convergence_study(solver, levelset,f, ud, uexact, pexact,geo = None,maxh= [0.5, 0.25, 0.125, 0.0625], order = None):
@@ -66,6 +68,7 @@ def convergence_study(solver, levelset,f, ud, uexact, pexact,geo = None,maxh= [0
 
 
 if __name__ == "__main__":
+    print("Start convergence study ...")
     u1 = -4*y * (1 - x**2 - y**2)
     u2 = 4*x*(1 - x**2 - y**2)
     uexact = CoefficientFunction((u1, u2))
@@ -84,7 +87,7 @@ if __name__ == "__main__":
     #levelsetfunction 
     levelset = x**2 + y**2 - 1
 
-    l2erroru ,l2errorp = convergence_study(P1_P1,levelset,f,ud=uexact,uexact=uexact,pexact=pexact)
+    l2erroru ,l2errorp = convergence_study(P1_P0,levelset,f,ud=uexact,uexact=uexact,pexact=pexact,order=3)
     plot_convergence(l2erroru,error_index=2, h_index=0, label="L2 error of velocity")
 
     l2erroru_taylor_hood = []
