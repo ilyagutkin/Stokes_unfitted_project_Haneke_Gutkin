@@ -41,9 +41,9 @@ from ngsolve.internal import *
 import ngsolve
 from xfem import *
 from xfem.lsetcurv import *
-from ordnung.stokes_solver import *
 import sys
 sys.path.append('.')
+from ordnung.stokes_solver import *
 from helper_functions.vizualization import *
 
 def convergence_study(solver, levelset,f, ud, uexact, pexact,geo = None,maxh= [0.5, 0.25, 0.125, 0.0625], order = None , condition_number= False):

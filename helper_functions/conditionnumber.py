@@ -5,6 +5,7 @@ from scipy.sparse.linalg import svds
 from ngsolve.la import EigenValues_Preconditioner
 
 
+
 def compute_condition_number(a, use_sparse_svd=False):
     """
     Berechne die Konditionszahl einer NGSolve-Matrix.
@@ -23,6 +24,8 @@ def compute_condition_number(a, use_sparse_svd=False):
     return cond
 
 if __name__ == "__main__":
+    import sys
+    sys.path.append('.')
     from ordnung.stokes_solver import P1_P1, P1_P0
     from ordnung.konvergenzstudie import *
     print("Start condition number study ...")

@@ -64,7 +64,7 @@ def stokes_Taylor_Hood(mesh,levelset , f=CF((0,0)), ud=CF((0,0)), nu=1, uexact =
     a += -(Grad(u)*n * v + Grad(v)*n * u) * ds + gamma_stab / h * u * v * ds #nitzshe stabilization
     a += -(q*n * u + p*n * v) * ds
     a += p*z1 *dx + q *z*dx
-    a += beta2* InnerProduct(jump(Grad(u)), jump(Grad(v))) * dw_interface #velocity ghost penalty
+    a += beta2* h **-2* InnerProduct(jump(u), jump(v)) * dw_interface #velocity ghost penalty
     a += -beta0 * InnerProduct(jump(p), jump(q)) * dw_interface #pressure ghost penalty
     a.Assemble()
 
@@ -133,7 +133,7 @@ def P1_P1(mesh, levelset, f=CF((0,0)), ud=CF((0,0)), nu=1, uexact=None, pexact=N
     a += stokes
     a += -(Grad(u)*n * v + Grad(v)*n * u) * ds + gamma_stab / h * u * v * ds #nitzshe stabilization
     a += -(q*n * u + p*n * v) * ds
-    a += p*z1 *dx + q *z*dX
+    a += p*z1 *dX + q *z*dX
     a += -beta1* h**2 * grad(p) * grad(q) * dX  #pressure stabilization
     a += beta2* h* InnerProduct(jumpn(u), jumpn(v)) * d_stable_GP#ds_inner_facets #velocity ghost penalty
     a += -beta0 * h**3*InnerProduct(jumpn(p), jumpn(q)) * d_stable_GP#ds_inner_facets #pressure ghost penalty
